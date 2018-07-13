@@ -10,6 +10,7 @@
   using Sitecore.ContentSearch.Azure.Models;
   using Sitecore.ContentSearch.Azure.Schema;
   using Sitecore.ContentSearch.Diagnostics;
+  using Sitecore.Services;
 
   internal class SearchService : ISearchService, IProvideAvailabilityManager, ISearchServiceConnectionInitializable, ISearchIndexInitializable, IDisposable
   {
@@ -151,8 +152,6 @@
 
     public void Dispose()
     {
-      var timer = Interlocked.Exchange(ref this.timer, null);
-      timer?.Dispose();
     }
   }
 }
