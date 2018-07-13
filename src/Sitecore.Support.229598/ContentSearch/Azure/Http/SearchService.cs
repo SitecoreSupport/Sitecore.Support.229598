@@ -25,8 +25,7 @@
       this.DocumentOperations = documentOperations;
 
       this.SchemaSynchronizer = schemaSynchronizer;
-      // We need to be sure that schema changes done by another role are synced with others.
-      this.timer = new Timer(this.SyncSchema, this, TimeSpan.FromSeconds(2), TimeSpan.Parse(schemaUpdateInterval));
+      this.schemaUpdateInterval = TimeSpan.Parse(schemaUpdateInterval);
     }
 
     private void SyncSchema(object state)
@@ -51,7 +50,8 @@
 
     public ISearchServiceSchemaSynchronizer SchemaSynchronizer { get; set; }
 
-    private Timer timer;
+    private AlarmClock alarmClock;
+    private TimeSpan schemaUpdateInterval;
     private ICloudSearchIndexSchema schema;
 
     public ICloudSearchIndexSchema Schema
@@ -143,6 +143,10 @@
 
       this.SchemaSynchronizer.EnsureIsInitialized();
       this.Schema = new Sitecore.Support.ContentSearch.Azure.Schema.CloudSearchIndexSchema(this.SchemaSynchronizer.LocalSchemaSnapshot);
+
+      // We need to be sure that schema changes done by another role are synced with others.
+      this.alarmClock = new AlarmClock(this.schemaUpdateInterval);
+      this.alarmClock.Ring += delegate { this.SyncSchema(this); };
     }
 
     public void Dispose()
