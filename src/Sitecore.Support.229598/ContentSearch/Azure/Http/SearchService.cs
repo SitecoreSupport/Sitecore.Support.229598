@@ -12,9 +12,11 @@
   using Sitecore.ContentSearch.Diagnostics;
   using Sitecore.Services;
 
-  internal class SearchService : ISearchService, IProvideAvailabilityManager, ISearchServiceConnectionInitializable, ISearchIndexInitializable, IDisposable
+  internal class SearchService : ISearchService, IProvideAvailabilityManager, ISearchServiceConnectionInitializable, ISearchIndexInitializable, IDisposable, ISearchServiceSchemaSyncNotification
   {
     private CloudSearchProviderIndex searchIndex;
+
+    public event EventHandler SchemaSynced;
 
     public SearchService(
         ISearchServiceAvailabilityManager availabilityManager,
@@ -36,6 +38,7 @@
         this.SchemaSynchronizer.RefreshLocalSchema();
 
         Interlocked.Exchange(ref schema, new Sitecore.Support.ContentSearch.Azure.Schema.CloudSearchIndexSchema(this.SchemaSynchronizer.LocalSchemaSnapshot.ToList()));
+        this.OnSchemaSynced(EventArgs.Empty);
       }
       catch (Exception exception)
       {
@@ -86,6 +89,7 @@
       {
         this.SchemaSynchronizer.EnsureIsInSync(schema.AllFields);
         this.Schema = new Sitecore.Support.ContentSearch.Azure.Schema.CloudSearchIndexSchema(this.SchemaSynchronizer.LocalSchemaSnapshot);
+        this.OnSchemaSynced(EventArgs.Empty);
       }
 
       if (!this.AvailabilityManager.CanWrite)
@@ -152,6 +156,20 @@
 
     public void Dispose()
     {
+      if (this.SchemaSynced == null)
+      {
+        return;
+      }
+
+      foreach (EventHandler toUnsubscribeFrom in this.SchemaSynced.GetInvocationList())
+      {
+        this.SchemaSynced -= toUnsubscribeFrom;
+      }
+    }
+
+    protected virtual void OnSchemaSynced(EventArgs args)
+    {
+      this.SchemaSynced?.Invoke(this, args);
     }
   }
 }
