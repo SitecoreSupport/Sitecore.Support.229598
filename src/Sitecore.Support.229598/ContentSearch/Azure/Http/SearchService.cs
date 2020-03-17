@@ -6,13 +6,12 @@
   using Sitecore.ContentSearch;
   using Sitecore.ContentSearch.Azure;
   using Sitecore.ContentSearch.Azure.Http;
-  using Sitecore.ContentSearch.Azure.Http.Exceptions;
   using Sitecore.ContentSearch.Azure.Models;
   using Sitecore.ContentSearch.Azure.Schema;
   using Sitecore.ContentSearch.Diagnostics;
   using Sitecore.Services;
 
-  internal class SearchService : ISearchService, IProvideAvailabilityManager, ISearchServiceConnectionInitializable, ISearchIndexInitializable, IDisposable, ISearchServiceSchemaSyncNotification
+  internal class SearchService : ISearchServiceDisposable, ISearchService, IProvideAvailabilityManager, ISearchServiceConnectionInitializable, ISearchIndexInitializable, IDisposable, ISearchServiceSchemaSyncNotification
   {
     private CloudSearchProviderIndex searchIndex;
 
@@ -124,6 +123,7 @@
       }
 
       this.SchemaSynchronizer.CleaupLocalSchema();
+      this.Dispose();
     }
 
     public virtual void Initialize(ISearchIndex index)

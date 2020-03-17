@@ -47,8 +47,8 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="Sitecore.ContentSearch.Azure">
-      <HintPath>..\packages\SC.Sitecore.ContentSearch.Azure.9.0.2\lib\Sitecore.ContentSearch.Azure.dll</HintPath>
       <Private>False</Private>
+      <HintPath>..\..\lib\Sitecore.ContentSearch.Azure.dll</HintPath>
     </Reference>
     <Reference Include="Sitecore.Kernel">
       <HintPath>..\packages\SC.Sitecore.Kernel.9.0.2\lib\Sitecore.Kernel.dll</HintPath>
